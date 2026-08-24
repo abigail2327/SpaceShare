@@ -13,6 +13,7 @@
             <article>
                 <h2>{{ listing.title }}</h2>
                 <p>{{ listing.date }} | {{ listing.get_status_display }}</p>
+                <a href="{% url 'listing-detail' listing.id %}">View listing</a>
             </article>
         {% empty %}
             <p>You have not created any listings yet.</p>

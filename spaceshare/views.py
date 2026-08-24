@@ -1,12 +1,25 @@
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import ListingForm, RegistrationForm
+from .models import Listing, ListingStatus
 
 
 def home(request):
 	return render(request, "spaceshare/home.html")
+
+
+def listing_detail(request, listing_id):
+	listing = get_object_or_404(
+		Listing.objects.select_related("host"),
+		pk=listing_id,
+		status=ListingStatus.ACTIVE,
+	)
+	if listing.is_past:
+		return render(request, "spaceshare/listing_unavailable.html", status=404)
+
+	return render(request, "spaceshare/listing_detail.html", {"listing": listing})
 
 
 @login_required
