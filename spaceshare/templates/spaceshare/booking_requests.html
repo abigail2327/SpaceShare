@@ -18,6 +18,10 @@
                     {% csrf_token %}
                     <button type="submit">Approve request</button>
                 </form>
+                <form method="post" action="{% url 'booking-decline' booking.id %}">
+                    {% csrf_token %}
+                    <button type="submit">Decline request</button>
+                </form>
             </article>
         {% empty %}
             <p>No pending booking requests.</p>

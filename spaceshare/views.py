@@ -141,6 +141,25 @@ def approve_booking(request, booking_id):
 
 
 @login_required
+def decline_booking(request, booking_id):
+	if request.method != "POST":
+		return redirect("booking-requests")
+
+	with transaction.atomic():
+		booking = get_object_or_404(
+			Booking.objects.select_for_update(),
+			pk=booking_id,
+			listing__host=request.user,
+			status=Booking.Status.PENDING,
+		)
+		booking.status = Booking.Status.DECLINED
+		booking.responded_at = timezone.now()
+		booking.save(update_fields=["status", "responded_at"])
+
+	return redirect("booking-requests")
+
+
+@login_required
 def my_bookings(request):
 	bookings = Booking.objects.filter(
 		guest=request.user,
