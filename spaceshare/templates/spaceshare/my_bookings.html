@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>My bookings | SpaceShare</title>
+</head>
+<body>
+    <main>
+        <h1>My bookings</h1>
+        {% for booking in bookings %}
+            <article>
+                <h2>{{ booking.listing.title }}</h2>
+                <p>{{ booking.listing.general_area }}</p>
+                <p>{{ booking.listing.date }} | {{ booking.listing.start_time }} - {{ booking.listing.end_time }}</p>
+                <p>{{ booking.get_status_display }}</p>
+                {% if booking.status == 'accepted' %}
+                    <p>{{ booking.listing.exact_address }}</p>
+                    {% if booking.listing.location_url %}<p><a href="{{ booking.listing.location_url }}">View location</a></p>{% endif %}
+                {% endif %}
+            </article>
+        {% empty %}
+            <p>You have not made any bookings yet.</p>
+        {% endfor %}
+    </main>
+</body>
+</html>

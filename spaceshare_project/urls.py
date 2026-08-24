@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.urls import path
 
-from spaceshare.views import host_booking_requests, cancel_listing, create_booking, create_listing, home, listing_detail, listing_index, my_listings, register
+from spaceshare.views import cancel_listing, create_booking, create_listing, host_booking_requests, home, listing_detail, listing_index, my_bookings, my_listings, register
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -32,5 +32,6 @@ urlpatterns = [
     path('listings/<int:listing_id>/book/', create_booking, name='booking-create'),
     path('listings/<int:listing_id>/', listing_detail, name='listing-detail'),
     path('bookings/requests/', host_booking_requests, name='booking-requests'),
+    path('bookings/mine/', my_bookings, name='booking-mine'),
     path('register/', register, name='register'),
 ]
