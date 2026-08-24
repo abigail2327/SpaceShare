@@ -1,6 +1,7 @@
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
+from django.db.models import Count, Q, F
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
@@ -10,6 +11,38 @@ from .models import Booking, Listing, ListingStatus
 
 def home(request):
 	return render(request, "spaceshare/home.html")
+
+
+def listing_index(request):
+	listings = Listing.objects.filter(
+		status=ListingStatus.ACTIVE,
+		date__gte=timezone.now().date(),
+	).annotate(
+		accepted_booking_count=Count(
+			"bookings",
+			filter=Q(bookings__status=Booking.Status.ACCEPTED),
+		),
+	).filter(
+		accepted_booking_count__lt=F("seats_total"),
+	).select_related("host")
+
+	area = request.GET.get("general_area", "").strip()
+	field_tag = request.GET.get("field_tag", "").strip()
+	if area:
+		listings = listings.filter(general_area__icontains=area)
+	if field_tag:
+		listings = listings.filter(field_tag=field_tag)
+
+	return render(
+		request,
+		"spaceshare/listing_list.html",
+		{
+			"listings": listings,
+			"area": area,
+			"field_tag": field_tag,
+			"field_choices": Listing._meta.get_field("field_tag").choices,
+		},
+	)
 
 
 def listing_detail(request, listing_id):

@@ -27,6 +27,9 @@
         {% if listing.parking_available %}<p>Parking available</p>{% endif %}
         {% if listing.quiet_room %}<p>Quiet room available</p>{% endif %}
         {% if listing.house_rules %}<p>{{ listing.house_rules }}</p>{% endif %}
+        {% if user.is_authenticated and user != listing.host and listing.is_bookable %}
+            <a href="{% url 'booking-create' listing.id %}">Request a seat</a>
+        {% endif %}
     </main>
 </body>
 </html>

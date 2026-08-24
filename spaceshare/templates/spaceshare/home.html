@@ -9,6 +9,7 @@
     <main>
         <h1>SpaceShare</h1>
         <p>Find a place to work alongside others.</p>
+        <a href="{% url 'listing-list' %}">Browse listings</a>
         <a href="{% url 'register' %}">Create an account</a>
         {% if user.is_authenticated %}
             <form method="post" action="{% url 'logout' %}">
