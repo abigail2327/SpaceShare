@@ -3,6 +3,7 @@ from datetime import date, timedelta
 from django.test import TestCase
 from django.urls import reverse
 
+from .forms import ListingForm
 from .models import Booking, FieldTag, Listing, ListingStatus, User
 
 
@@ -129,6 +130,41 @@ class ListingTests(SpaceShareTestCase):
 		self.assertEqual(accepted.status, Booking.Status.CANCELLED)
 		self.assertEqual(completed.status, Booking.Status.COMPLETED)
 
+	def test_other_user_cannot_cancel_listing(self):
+		host = self.create_user("cancel-owner")
+		other = self.create_user("cancel-outsider")
+		listing = self.create_listing(host)
+		self.client.force_login(other)
+
+		response = self.client.post(
+			reverse("listing-cancel", args=[listing.pk]),
+		)
+
+		self.assertEqual(response.status_code, 404)
+		listing.refresh_from_db()
+		self.assertEqual(listing.status, ListingStatus.ACTIVE)
+
+	def test_listing_form_rejects_invalid_schedule_and_price(self):
+		data = {
+			"title": "Invalid listing",
+			"general_area": "JBR",
+			"exact_address": "Private",
+			"date": date.today() - timedelta(days=1),
+			"start_time": "17:00",
+			"end_time": "09:00",
+			"seats_total": 1,
+			"field_tag": FieldTag.TECH,
+			"is_free": True,
+			"price": "10.00",
+		}
+
+		form = ListingForm(data=data)
+
+		self.assertFalse(form.is_valid())
+		self.assertIn("date", form.errors)
+		self.assertIn("end_time", form.errors)
+		self.assertIn("price", form.errors)
+
 
 class DiscoveryAndBookingTests(SpaceShareTestCase):
 	def test_index_shows_available_future_listings_only(self):
@@ -214,3 +250,161 @@ class DiscoveryAndBookingTests(SpaceShareTestCase):
 			duplicate_response,
 			"already have an active booking request",
 		)
+
+	def test_listing_index_filters_by_area_and_field(self):
+		host = self.create_user("filter-host")
+		self.create_listing(host, title="JBR tech", general_area="JBR", field_tag=FieldTag.TECH)
+		self.create_listing(host, title="DIFC design", general_area="DIFC", field_tag=FieldTag.DESIGN)
+
+		response = self.client.get(
+			reverse("listing-list"),
+			{"general_area": "JBR", "field_tag": FieldTag.TECH},
+		)
+
+		self.assertContains(response, "JBR tech")
+		self.assertNotContains(response, "DIFC design")
+
+	def test_cancelled_listing_uses_unavailable_page(self):
+		host = self.create_user("unavailable-host")
+		listing = self.create_listing(host, status=ListingStatus.CANCELLED)
+
+		response = self.client.get(reverse("listing-detail", args=[listing.pk]))
+
+		self.assertEqual(response.status_code, 404)
+		self.assertIn("Listing unavailable", response.content.decode())
+
+	def test_host_sees_only_pending_requests_for_owned_listings(self):
+		host = self.create_user("request-host")
+		other = self.create_user("request-other")
+		guest = self.create_user("request-guest")
+		own_listing = self.create_listing(host, title="Own listing")
+		other_listing = self.create_listing(other, title="Other listing")
+		Booking.objects.create(listing=own_listing, guest=guest, message="Own request")
+		Booking.objects.create(listing=other_listing, guest=guest, message="Other request")
+		self.client.force_login(host)
+
+		response = self.client.get(reverse("booking-requests"))
+
+		self.assertContains(response, "Own listing")
+		self.assertContains(response, "Own request")
+		self.assertNotContains(response, "Other listing")
+		self.assertNotContains(response, "Other request")
+
+	def test_approval_requires_post_and_listing_ownership(self):
+		host = self.create_user("approval-host")
+		other = self.create_user("approval-other")
+		guest = self.create_user("approval-guest")
+		listing = self.create_listing(host)
+		booking = Booking.objects.create(listing=listing, guest=guest)
+
+		self.client.force_login(host)
+		self.assertRedirects(
+			self.client.get(reverse("booking-approve", args=[booking.pk])),
+			reverse("booking-requests"),
+		)
+		self.client.force_login(other)
+		self.assertEqual(
+			self.client.post(reverse("booking-approve", args=[booking.pk])).status_code,
+			404,
+		)
+
+	def test_host_can_approve_pending_booking(self):
+		host = self.create_user("approve-host")
+		guest = self.create_user("approve-guest")
+		listing = self.create_listing(host)
+		booking = Booking.objects.create(listing=listing, guest=guest)
+		self.client.force_login(host)
+
+		response = self.client.post(
+			reverse("booking-approve", args=[booking.pk]),
+		)
+
+		self.assertRedirects(response, reverse("booking-requests"))
+		booking.refresh_from_db()
+		self.assertEqual(booking.status, Booking.Status.ACCEPTED)
+		self.assertIsNotNone(booking.responded_at)
+
+	def test_approval_does_not_exceed_capacity(self):
+		host = self.create_user("capacity-host")
+		first_guest = self.create_user("capacity-first")
+		second_guest = self.create_user("capacity-second")
+		listing = self.create_listing(host, seats_total=1)
+		first = Booking.objects.create(listing=listing, guest=first_guest, status=Booking.Status.ACCEPTED)
+		second = Booking.objects.create(listing=listing, guest=second_guest)
+		self.client.force_login(host)
+
+		self.client.post(reverse("booking-approve", args=[second.pk]))
+		first.refresh_from_db()
+		second.refresh_from_db()
+		self.assertEqual(first.status, Booking.Status.ACCEPTED)
+		self.assertEqual(second.status, Booking.Status.PENDING)
+
+	def test_host_can_decline_pending_booking(self):
+		host = self.create_user("decline-host")
+		guest = self.create_user("decline-guest")
+		listing = self.create_listing(host)
+		booking = Booking.objects.create(listing=listing, guest=guest)
+		self.client.force_login(host)
+
+		response = self.client.post(
+			reverse("booking-decline", args=[booking.pk]),
+		)
+
+		self.assertRedirects(response, reverse("booking-requests"))
+		booking.refresh_from_db()
+		self.assertEqual(booking.status, Booking.Status.DECLINED)
+		self.assertIsNotNone(booking.responded_at)
+
+	def test_guest_booking_history_includes_all_statuses_and_hides_unaccepted_address(self):
+		host = self.create_user("history-host")
+		guest = self.create_user("history-guest")
+		accepted_listing = self.create_listing(
+			host,
+			title="Accepted history",
+			exact_address="Accepted private address",
+		)
+		other_listing = self.create_listing(
+			host,
+			title="Other history",
+			exact_address="Other private address",
+		)
+		Booking.objects.create(listing=accepted_listing, guest=guest, status=Booking.Status.ACCEPTED)
+		for status in (Booking.Status.PENDING, Booking.Status.DECLINED, Booking.Status.CANCELLED, Booking.Status.COMPLETED):
+			Booking.objects.create(listing=other_listing, guest=guest, status=status)
+		self.client.force_login(guest)
+
+		response = self.client.get(reverse("booking-mine"))
+
+		body = response.content.decode()
+		self.assertEqual(response.status_code, 200)
+		for label in ("Accepted", "Pending", "Declined", "Cancelled", "Completed"):
+			self.assertIn(label, body)
+		self.assertIn("Accepted private address", body)
+		self.assertNotIn("Other private address", body)
+
+	def test_guest_can_cancel_own_booking_only_before_session(self):
+		host = self.create_user("guest-cancel-host")
+		guest = self.create_user("guest-cancel-user")
+		listing = self.create_listing(host)
+		booking = Booking.objects.create(listing=listing, guest=guest, status=Booking.Status.ACCEPTED)
+		self.client.force_login(guest)
+
+		response = self.client.post(reverse("booking-cancel", args=[booking.pk]))
+
+		self.assertRedirects(response, reverse("booking-mine"))
+		booking.refresh_from_db()
+		self.assertEqual(booking.status, Booking.Status.CANCELLED)
+
+		past_listing = self.create_listing(
+			host,
+			title="Past booking",
+			date=date.today() - timedelta(days=1),
+		)
+		past_booking = Booking.objects.create(
+			listing=past_listing,
+			guest=guest,
+			status=Booking.Status.ACCEPTED,
+		)
+		self.client.post(reverse("booking-cancel", args=[past_booking.pk]))
+		past_booking.refresh_from_db()
+		self.assertEqual(past_booking.status, Booking.Status.ACCEPTED)
