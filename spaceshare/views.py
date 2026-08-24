@@ -24,6 +24,11 @@ def create_listing(request):
 	return render(request, "spaceshare/listing_form.html", {"form": form})
 
 
+@login_required
+def my_listings(request):
+	listings = request.user.listings.all()
+	return render(request, "spaceshare/my_listings.html", {"listings": listings})
+
 
 def register(request):
 	if request.method == "POST":
