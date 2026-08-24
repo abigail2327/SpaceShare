@@ -2,7 +2,36 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 
-from .models import Booking, Listing
+from .models import Booking, Listing, User
+
+
+class RegistrationForm(forms.ModelForm):
+    password = forms.CharField(widget=forms.PasswordInput)
+    password_confirmation = forms.CharField(widget=forms.PasswordInput)
+
+    class Meta:
+        model = User
+        fields = ["email", "first_name", "last_name", "password"]
+
+    def clean_email(self):
+        return self.cleaned_data["email"].lower()
+
+    def clean(self):
+        cleaned_data = super().clean()
+        password = cleaned_data.get("password")
+        password_confirmation = cleaned_data.get("password_confirmation")
+
+        if password and password_confirmation and password != password_confirmation:
+            self.add_error("password_confirmation", "Passwords do not match.")
+
+        return cleaned_data
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.set_password(self.cleaned_data["password"])
+        if commit:
+            user.save()
+        return user
 
 
 class ListingForm(forms.ModelForm):
