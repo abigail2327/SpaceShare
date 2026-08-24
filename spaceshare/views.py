@@ -5,7 +5,7 @@ from django.db.models import Count, Q, F
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
-from .forms import ListingForm, RegistrationForm
+from .forms import BookingForm, ListingForm, RegistrationForm
 from .models import Booking, Listing, ListingStatus
 
 
@@ -54,6 +54,32 @@ def listing_detail(request, listing_id):
 		return render(request, "spaceshare/listing_unavailable.html", status=404)
 
 	return render(request, "spaceshare/listing_detail.html", {"listing": listing})
+
+
+@login_required
+def create_booking(request, listing_id):
+	listing = get_object_or_404(
+		Listing.objects.select_related("host"),
+		pk=listing_id,
+		status=ListingStatus.ACTIVE,
+	)
+
+	if request.method == "POST":
+		form = BookingForm(request.POST, listing=listing, guest=request.user)
+		if form.is_valid():
+			booking = form.save(commit=False)
+			booking.listing = listing
+			booking.guest = request.user
+			booking.save()
+			return redirect("listing-detail", listing_id=listing.pk)
+	else:
+		form = BookingForm(listing=listing, guest=request.user)
+
+	return render(
+		request,
+		"spaceshare/booking_form.html",
+		{"form": form, "listing": listing},
+	)
 
 
 @login_required
