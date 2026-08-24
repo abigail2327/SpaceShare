@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>My listings | SpaceShare</title>
+</head>
+<body>
+    <main>
+        <h1>My listings</h1>
+        <a href="{% url 'listing-create' %}">Create a listing</a>
+        {% for listing in listings %}
+            <article>
+                <h2>{{ listing.title }}</h2>
+                <p>{{ listing.date }} | {{ listing.get_status_display }}</p>
+            </article>
+        {% empty %}
+            <p>You have not created any listings yet.</p>
+        {% endfor %}
+    </main>
+</body>
+</html>

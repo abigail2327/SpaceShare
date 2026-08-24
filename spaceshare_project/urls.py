@@ -18,12 +18,14 @@ from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.urls import path
 
-from spaceshare.views import home, register
+from spaceshare.views import create_listing, home, my_listings, register
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', home, name='home'),
     path('login/', auth_views.LoginView.as_view(template_name='spaceshare/login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='home'), name='logout'),
+    path('listings/new/', create_listing, name='listing-create'),
+    path('listings/mine/', my_listings, name='listing-mine'),
     path('register/', register, name='register'),
 ]
