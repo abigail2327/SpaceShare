@@ -168,6 +168,28 @@ def my_bookings(request):
 
 
 @login_required
+def cancel_booking(request, booking_id):
+	if request.method != "POST":
+		return redirect("booking-mine")
+
+	with transaction.atomic():
+		booking = get_object_or_404(
+			Booking.objects.select_for_update().select_related("listing"),
+			pk=booking_id,
+			guest=request.user,
+			status__in=[Booking.Status.PENDING, Booking.Status.ACCEPTED],
+		)
+		if booking.listing.date < timezone.now().date():
+			messages.error(request, "Past bookings cannot be cancelled.")
+		else:
+			booking.status = Booking.Status.CANCELLED
+			booking.responded_at = timezone.now()
+			booking.save(update_fields=["status", "responded_at"])
+
+	return redirect("booking-mine")
+
+
+@login_required
 def cancel_listing(request, listing_id):
 	if request.method != "POST":
 		return redirect("listing-mine")

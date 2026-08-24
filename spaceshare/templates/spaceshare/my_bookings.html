@@ -18,6 +18,12 @@
                     <p>{{ booking.listing.exact_address }}</p>
                     {% if booking.listing.location_url %}<p><a href="{{ booking.listing.location_url }}">View location</a></p>{% endif %}
                 {% endif %}
+                {% if booking.status == 'pending' or booking.status == 'accepted' %}
+                    <form method="post" action="{% url 'booking-cancel' booking.id %}">
+                        {% csrf_token %}
+                        <button type="submit">Cancel booking</button>
+                    </form>
+                {% endif %}
             </article>
         {% empty %}
             <p>You have not made any bookings yet.</p>
