@@ -13,7 +13,15 @@
             <article>
                 <h2>{{ listing.title }}</h2>
                 <p>{{ listing.date }} | {{ listing.get_status_display }}</p>
-                <a href="{% url 'listing-detail' listing.id %}">View listing</a>
+                {% if listing.status == 'active' and not listing.is_past %}
+                    <a href="{% url 'listing-detail' listing.id %}">View listing</a>
+                {% endif %}
+                {% if listing.status != 'cancelled' %}
+                    <form method="post" action="{% url 'listing-cancel' listing.id %}">
+                        {% csrf_token %}
+                        <button type="submit" onclick="return confirm('Cancel this listing? Existing bookings will be cancelled.');">Delete listing</button>
+                    </form>
+                {% endif %}
             </article>
         {% empty %}
             <p>You have not created any listings yet.</p>

@@ -1,9 +1,11 @@
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
+from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 
 from .forms import ListingForm, RegistrationForm
-from .models import Listing, ListingStatus
+from .models import Booking, Listing, ListingStatus
 
 
 def home(request):
@@ -14,9 +16,8 @@ def listing_detail(request, listing_id):
 	listing = get_object_or_404(
 		Listing.objects.select_related("host"),
 		pk=listing_id,
-		status=ListingStatus.ACTIVE,
 	)
-	if listing.is_past:
+	if listing.status != ListingStatus.ACTIVE or listing.is_past:
 		return render(request, "spaceshare/listing_unavailable.html", status=404)
 
 	return render(request, "spaceshare/listing_detail.html", {"listing": listing})
@@ -41,6 +42,25 @@ def create_listing(request):
 def my_listings(request):
 	listings = request.user.listings.all()
 	return render(request, "spaceshare/my_listings.html", {"listings": listings})
+
+
+@login_required
+def cancel_listing(request, listing_id):
+	if request.method != "POST":
+		return redirect("listing-mine")
+
+	with transaction.atomic():
+		listing = get_object_or_404(
+			request.user.listings.select_for_update(),
+			pk=listing_id,
+		)
+		listing.status = ListingStatus.CANCELLED
+		listing.save(update_fields=["status", "updated_at"])
+		listing.bookings.filter(
+			status__in=[Booking.Status.PENDING, Booking.Status.ACCEPTED]
+		).update(status=Booking.Status.CANCELLED, responded_at=timezone.now())
+
+	return redirect("listing-mine")
 
 
 def register(request):
