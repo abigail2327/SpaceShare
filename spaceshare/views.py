@@ -2,6 +2,7 @@ from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.db.models import Count, Q, F
+from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
@@ -110,6 +111,33 @@ def host_booking_requests(request):
 		status=Booking.Status.PENDING,
 	).select_related("listing", "guest")
 	return render(request, "spaceshare/booking_requests.html", {"bookings": bookings})
+
+
+@login_required
+def approve_booking(request, booking_id):
+	if request.method != "POST":
+		return redirect("booking-requests")
+
+	with transaction.atomic():
+		booking = get_object_or_404(
+			Booking.objects.select_for_update().select_related("listing"),
+			pk=booking_id,
+			listing__host=request.user,
+		)
+		listing = Listing.objects.select_for_update().get(pk=booking.listing_id)
+
+		if booking.status != Booking.Status.PENDING:
+			messages.error(request, "This booking request has already been handled.")
+		elif not listing.is_bookable:
+			messages.error(request, "This listing is no longer available.")
+		elif listing.seats_available <= 0:
+			messages.error(request, "There are no seats available for this listing.")
+		else:
+			booking.status = Booking.Status.ACCEPTED
+			booking.responded_at = timezone.now()
+			booking.save(update_fields=["status", "responded_at"])
+
+	return redirect("booking-requests")
 
 
 @login_required

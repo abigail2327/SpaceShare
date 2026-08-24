@@ -14,6 +14,10 @@
                 <p>Requested by {{ booking.guest }}</p>
                 <p>{{ booking.booked_at }}</p>
                 {% if booking.message %}<p>{{ booking.message }}</p>{% endif %}
+                <form method="post" action="{% url 'booking-approve' booking.id %}">
+                    {% csrf_token %}
+                    <button type="submit">Approve request</button>
+                </form>
             </article>
         {% empty %}
             <p>No pending booking requests.</p>
