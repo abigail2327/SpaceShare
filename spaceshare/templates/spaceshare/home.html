@@ -12,6 +12,7 @@
         <a href="{% url 'listing-list' %}">Browse listings</a>
         <a href="{% url 'register' %}">Create an account</a>
         {% if user.is_authenticated %}
+            <a href="{% url 'booking-requests' %}">Booking requests</a>
             <form method="post" action="{% url 'logout' %}">
                 {% csrf_token %}
                 <button type="submit">Log out</button>

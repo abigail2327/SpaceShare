@@ -104,6 +104,15 @@ def my_listings(request):
 
 
 @login_required
+def host_booking_requests(request):
+	bookings = Booking.objects.filter(
+		listing__host=request.user,
+		status=Booking.Status.PENDING,
+	).select_related("listing", "guest")
+	return render(request, "spaceshare/booking_requests.html", {"bookings": bookings})
+
+
+@login_required
 def cancel_listing(request, listing_id):
 	if request.method != "POST":
 		return redirect("listing-mine")

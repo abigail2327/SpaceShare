@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Booking requests | SpaceShare</title>
+</head>
+<body>
+    <main>
+        <h1>Booking requests</h1>
+        {% for booking in bookings %}
+            <article>
+                <h2>{{ booking.listing.title }}</h2>
+                <p>Requested by {{ booking.guest }}</p>
+                <p>{{ booking.booked_at }}</p>
+                {% if booking.message %}<p>{{ booking.message }}</p>{% endif %}
+            </article>
+        {% empty %}
+            <p>No pending booking requests.</p>
+        {% endfor %}
+    </main>
+</body>
+</html>
