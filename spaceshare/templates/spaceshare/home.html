@@ -10,6 +10,14 @@
         <h1>SpaceShare</h1>
         <p>Find a place to work alongside others.</p>
         <a href="{% url 'register' %}">Create an account</a>
+        {% if user.is_authenticated %}
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit">Log out</button>
+            </form>
+        {% else %}
+            <a href="{% url 'login' %}">Log in</a>
+        {% endif %}
     </main>
 </body>
 </html>

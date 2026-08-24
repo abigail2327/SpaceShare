@@ -131,3 +131,5 @@ MAILERS = {
 }
 
 AUTH_USER_MODEL = "spaceshare.User"
+LOGIN_REDIRECT_URL = "home"
+LOGIN_URL = "login"
