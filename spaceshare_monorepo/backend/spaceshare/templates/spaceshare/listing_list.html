@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Browse listings | SpaceShare</title>
+</head>
+<body>
+    <main>
+        <h1>Browse listings</h1>
+        <form method="get">
+            <label>
+                Area
+                <input type="search" name="general_area" value="{{ area }}">
+            </label>
+            <label>
+                Field
+                <select name="field_tag">
+                    <option value="">All fields</option>
+                    {% for value, label in field_choices %}
+                        <option value="{{ value }}"{% if field_tag == value %} selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <button type="submit">Filter</button>
+        </form>
+        {% for listing in listings %}
+            <article>
+                <h2><a href="{% url 'listing-detail' listing.id %}">{{ listing.title }}</a></h2>
+                <p>{{ listing.general_area }}</p>
+                <p>{{ listing.date }} | {{ listing.start_time }} - {{ listing.end_time }}</p>
+                <p>{{ listing.get_field_tag_display }} | {{ listing.seats_available }} seat{{ listing.seats_available|pluralize }} available</p>
+                {% if listing.is_free %}
+                    <p>Free</p>
+                {% else %}
+                    <p>{{ listing.price }}</p>
+                {% endif %}
+            </article>
+        {% empty %}
+            <p>No listings found.</p>
+        {% endfor %}
+    </main>
+</body>
+</html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ listing.title }} | SpaceShare</title>
+</head>
+<body>
+    <main>
+        <h1>{{ listing.title }}</h1>
+        <p>{{ listing.description }}</p>
+        <p>Hosted by {{ listing.host }}</p>
+        <p>{{ listing.general_area }}</p>
+        <p>{{ listing.date }} | {{ listing.start_time }} - {{ listing.end_time }}</p>
+        <p>{{ listing.get_field_tag_display }}</p>
+        <p>{{ listing.seats_available }} seat{{ listing.seats_available|pluralize }} available</p>
+        {% if listing.is_free %}
+            <p>Free</p>
+        {% else %}
+            <p>{{ listing.price }}</p>
+        {% endif %}
+        {% if listing.women_only %}<p>Women-only listing</p>{% endif %}
+        {% if listing.wifi_available %}<p>Wi-Fi available</p>{% endif %}
+        {% if listing.kid_friendly %}<p>Kid-friendly</p>{% endif %}
+        {% if listing.pet_friendly %}<p>Pet-friendly</p>{% endif %}
+        {% if listing.lunch_included %}<p>Lunch included</p>{% endif %}
+        {% if listing.parking_available %}<p>Parking available</p>{% endif %}
+        {% if listing.quiet_room %}<p>Quiet room available</p>{% endif %}
+        {% if listing.house_rules %}<p>{{ listing.house_rules }}</p>{% endif %}
+        {% if user.is_authenticated and user != listing.host and listing.is_bookable %}
+            <a href="{% url 'booking-create' listing.id %}">Request a seat</a>
+        {% endif %}
+    </main>
+</body>
+</html>

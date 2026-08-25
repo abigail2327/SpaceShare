@@ -1,0 +1,80 @@
+/* ---------------------------------------------------------------------- */
+/* SpaceShare — shared visual primitives                                   */
+/* ---------------------------------------------------------------------- */
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Glass navbar / overlay surfaces */
+.glass {
+  background: rgba(250, 248, 243, 0.78);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.glass-dark {
+  background: rgba(28, 26, 23, 0.42);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+/* Standard form control */
+.input {
+  width: 100%;
+  border: 1px solid #E4DCCB;
+  border-radius: 0.75rem;
+  padding: 0.6rem 0.85rem;
+  background: #ffffff;
+  font-size: 0.9rem;
+  font-family: inherit;
+  color: #1C1A17;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+.input:focus {
+  outline: none;
+  border-color: #C69A3E;
+  box-shadow: 0 0 0 3px rgba(198, 154, 62, 0.18);
+}
+.input::placeholder {
+  color: rgba(28, 26, 23, 0.35);
+}
+
+textarea.input {
+  resize: vertical;
+}
+
+/* Elevated card */
+.card {
+  background: #ffffff;
+  border: 1px solid #E4DCCB;
+  border-radius: 1.25rem;
+}
+
+/* Hide scrollbar for horizontally-scrolling chip rows */
+.scroll-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scroll-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Map embed frame */
+.map-frame iframe {
+  display: block;
+}
+
+:focus-visible {
+  outline: 2px solid #C69A3E;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

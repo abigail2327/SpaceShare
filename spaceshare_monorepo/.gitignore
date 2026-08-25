@@ -1,0 +1,24 @@
+# --- Frontend (React / Vite) ------------------------------------------
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.local
+
+# --- Backend (Django) ---------------------------------------------------
+backend/.venv/
+backend/venv/
+backend/env/
+backend/__pycache__/
+backend/**/__pycache__/
+backend/*.pyc
+backend/db.sqlite3
+backend/db.sqlite3-journal
+backend/staticfiles/
+backend/media/
+backend/.env
+
+# --- Editors / OS ---------------------------------------------------------
+.DS_Store
+.vscode/
+.idea/
+*.log
