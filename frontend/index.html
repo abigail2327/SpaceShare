@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SpaceShare — Work from someone's home, near you</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,450;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              paper: '#FAF8F3',
+              surface: '#FFFFFF',
+              ink: '#1C1A17',
+              sand: '#F1EBDD',
+              line: '#E4DCCB',
+              gold: '#C69A3E',
+              goldlight: '#F5EACB',
+              forest: '#3F4B3B',
+              forestlight: '#E8ECE3',
+              clay: '#A9552E',
+              claylight: '#F1E1D5',
+            },
+            fontFamily: {
+              display: ['Fraunces', 'serif'],
+              sans: ['Inter', 'sans-serif'],
+            },
+            boxShadow: {
+              soft: '0 1px 2px rgba(28,26,23,0.04), 0 10px 28px -12px rgba(28,26,23,0.16)',
+              lift: '0 2px 4px rgba(28,26,23,0.06), 0 20px 36px -14px rgba(28,26,23,0.24)',
+            },
+          },
+        },
+      }
+    </script>
+  </head>
+  <body class="bg-paper text-ink antialiased font-sans">
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
