@@ -17,8 +17,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 
+from spaceshare.views import GoogleLogin
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('spaceshare.api_urls')),
     path('', include('spaceshare.urls')),
+    path('accounts/', include('allauth.urls')),
+    path('api/auth/google/', GoogleLogin.as_view(), name='google_login'),
 ]

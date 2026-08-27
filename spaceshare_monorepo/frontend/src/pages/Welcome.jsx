@@ -5,6 +5,7 @@ import { FIELD_LABELS } from '../lib/store.js'
 import { useLiveLocation } from '../lib/useLiveLocation.js'
 import LocationMap from '../components/LocationMap.jsx'
 import { IconWifi, IconShield, IconClock, IconNavigation, IconArrowRight } from '../components/Icons.jsx'
+import GoogleLoginButton from '../components/GoogleLoginButton.jsx'
 
 const HERO_IMAGE =
   'https://images.unsplash.com/photo-1604328727766-a151d1045ab4?auto=format&fit=crop&w=1800&q=80'
@@ -202,6 +203,9 @@ function SignupForm({ refresh, navigate, liveArea, onLocate }) {
       <Field label="LinkedIn (optional trust signal)">
         <input value={form.linkedin} onChange={(e) => update('linkedin', e.target.value)} className="input" placeholder="linkedin.com/in/you" />
       </Field>
+
+      <div className="divider">or</div>
+      <GoogleLoginButton onSuccess={() => navigate('/dashboard')} />
 
       {error && <p className="text-sm text-clay">{error}</p>}
 
