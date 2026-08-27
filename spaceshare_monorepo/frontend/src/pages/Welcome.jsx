@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { register, login } from '../lib/auth.js'
 import { FIELD_LABELS } from '../lib/store.js'
 import { useLiveLocation } from '../lib/useLiveLocation.js'
 import LocationMap from '../components/LocationMap.jsx'
@@ -12,7 +11,6 @@ const HERO_IMAGE =
 
 export default function Welcome({ refresh }) {
   const navigate = useNavigate()
-  const [tab, setTab] = useState('signup')
   const { coords, label, status, error: locError, locate } = useLiveLocation()
 
   return (
@@ -88,31 +86,19 @@ export default function Welcome({ refresh }) {
         )}
 
         {/* ------------------------------------------------------ auth card */}
-        <div className="mx-auto mt-10 max-w-md rounded-2xl border border-line bg-white p-8 shadow-soft">
-          <div className="mb-6 flex rounded-full bg-sand p-1">
-            <button
-              onClick={() => setTab('signup')}
-              className={`flex-1 rounded-full py-2 text-sm font-medium transition-colors ${
-                tab === 'signup' ? 'bg-white text-ink shadow-soft' : 'text-ink/55'
-              }`}
-            >
-              Create account
-            </button>
-            <button
-              onClick={() => setTab('login')}
-              className={`flex-1 rounded-full py-2 text-sm font-medium transition-colors ${
-                tab === 'login' ? 'bg-white text-ink shadow-soft' : 'text-ink/55'
-              }`}
-            >
-              Sign in
-            </button>
+        <div className="mx-auto mt-10 max-w-md rounded-2xl border border-line bg-white p-8 text-center shadow-soft">
+          <h2 className="font-display text-2xl font-medium text-ink">Join SpaceShare</h2>
+          <p className="mt-2 text-sm leading-relaxed text-ink/55">
+            Sign in with Google to find a workspace or host your own session.
+          </p>
+          <div className="mt-6 flex justify-center">
+            <GoogleLoginButton
+              onSuccess={(googleUser) => {
+                window.location.assign(googleUser.area && googleUser.fieldTag ? '/' : '/complete-profile')
+              }}
+            />
           </div>
-
-          {tab === 'signup' ? (
-            <SignupForm refresh={refresh} navigate={navigate} liveArea={label} onLocate={locate} />
-          ) : (
-            <LoginForm refresh={refresh} navigate={navigate} />
-          )}
+          <p className="mt-4 text-xs text-ink/45">You can complete your profile after signing in.</p>
         </div>
       </div>
     </div>

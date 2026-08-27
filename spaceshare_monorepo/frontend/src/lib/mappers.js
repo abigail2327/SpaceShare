@@ -32,6 +32,7 @@ export function mapUserFromApi(u) {
     emailVerified: Boolean(u.emailVerified),
     linkedin: u.linkedinUrl || '',
     area: u.area || '',
+    fieldTag: u.fieldTag || '',
     averageRating: u.averageRating ?? null,
     ratingCount: u.ratingCount ?? 0,
   }
@@ -47,6 +48,7 @@ export function mapUserToApi(patch) {
   if (patch.bio !== undefined) out.bio = patch.bio
   if (patch.linkedin !== undefined) out.linkedinUrl = patch.linkedin
   if (patch.area !== undefined) out.area = patch.area
+  if (patch.fieldTag !== undefined) out.fieldTag = patch.fieldTag
   return out
 }
 

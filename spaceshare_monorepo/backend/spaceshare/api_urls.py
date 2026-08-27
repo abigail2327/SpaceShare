@@ -7,6 +7,7 @@ urlpatterns = [
     # Auth
     path('auth/register/', api_views.RegisterView.as_view(), name='api-register'),
     path('auth/login/', api_views.LoginView.as_view(), name='api-login'),
+    path('auth/google/', api_views.GoogleLoginView.as_view(), name='api-google-login'),
     path('auth/refresh/', TokenRefreshView.as_view(), name='api-refresh'),
     path('auth/me/', api_views.MeView.as_view(), name='api-me'),
 

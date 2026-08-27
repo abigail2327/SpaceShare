@@ -21,6 +21,7 @@ dependencies = [
     "psycopg2-binary>=2.9.12",
     "django-allauth>=65.19.1",
     "requests>=2.32",
+    "google-auth>=2.40",
     "dj-rest-auth>=7.2.0",
 ]
 

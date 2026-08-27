@@ -1,8 +1,12 @@
 from django.contrib.auth import get_user_model
+from django.conf import settings
 from django.db import IntegrityError, transaction
 from django.db.models import Count, F, Q
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from google.auth.exceptions import GoogleAuthError
+from google.auth.transport import requests as google_requests
+from google.oauth2 import id_token
 from rest_framework import generics, permissions, status
 from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.response import Response
@@ -64,6 +68,59 @@ class EmailTokenObtainPairSerializer(TokenObtainPairSerializer):
 class LoginView(TokenObtainPairView):
     serializer_class = EmailTokenObtainPairSerializer
     permission_classes = [permissions.AllowAny]
+
+
+class GoogleLoginView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        credential = request.data.get("id_token")
+        if not credential:
+            return Response(
+                {"detail": "A Google ID token is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            claims = id_token.verify_oauth2_token(
+                credential,
+                google_requests.Request(),
+                audience=settings.GOOGLE_CLIENT_ID,
+            )
+        except (ValueError, GoogleAuthError):
+            return Response(
+                {"detail": "The Google credential is invalid or expired."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        email = claims.get("email", "").lower()
+        if not email or claims.get("email_verified") is not True:
+            return Response(
+                {"detail": "Google must provide a verified email address."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        user, created = User.objects.get_or_create(
+            email=email,
+            defaults={
+                "first_name": claims.get("given_name", ""),
+                "last_name": claims.get("family_name", ""),
+                "email_verified": True,
+            },
+        )
+        if not created:
+            changed_fields = []
+            if not user.email_verified:
+                user.email_verified = True
+                changed_fields.append("email_verified")
+            for field, claim in (("first_name", "given_name"), ("last_name", "family_name")):
+                if not getattr(user, field) and claims.get(claim):
+                    setattr(user, field, claims[claim])
+                    changed_fields.append(field)
+            if changed_fields:
+                user.save(update_fields=changed_fields)
+
+        return Response({**_tokens_for(user), "user": MeSerializer(user).data})
 
 
 class MeView(APIView):

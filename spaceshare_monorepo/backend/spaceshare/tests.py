@@ -1,4 +1,5 @@
 from datetime import date, timedelta
+from unittest.mock import patch
 
 from django.test import TestCase
 from django.urls import reverse
@@ -33,6 +34,66 @@ class SpaceShareTestCase(TestCase):
 
 
 class AuthenticationTests(SpaceShareTestCase):
+	@patch("spaceshare.api_views.id_token.verify_oauth2_token")
+	def test_google_login_creates_user_and_returns_jwt_tokens(self, verify_token):
+		verify_token.return_value = {
+			"email": "google@example.com",
+			"email_verified": True,
+			"given_name": "Google",
+			"family_name": "User",
+		}
+
+		response = self.client.post(
+			"/api/auth/google/",
+			{"id_token": "valid-google-token"},
+			content_type="application/json",
+		)
+
+		self.assertEqual(response.status_code, 200)
+		self.assertIn("access", response.json())
+		self.assertIn("refresh", response.json())
+		self.assertEqual(response.json()["user"]["email"], "google@example.com")
+		user = User.objects.get(email="google@example.com")
+		self.assertEqual(user.first_name, "Google")
+		self.assertTrue(user.email_verified)
+
+	@patch("spaceshare.api_views.id_token.verify_oauth2_token")
+	def test_google_login_links_existing_user_without_overwriting_profile(self, verify_token):
+		user = self.create_user("existing-google")
+		user.first_name = "Existing"
+		user.save()
+		verify_token.return_value = {
+			"email": user.email,
+			"email_verified": True,
+			"given_name": "Google",
+			"family_name": "Name",
+		}
+
+		response = self.client.post(
+			"/api/auth/google/",
+			{"id_token": "valid-google-token"},
+			content_type="application/json",
+		)
+
+		self.assertEqual(response.status_code, 200)
+		self.assertEqual(User.objects.filter(email=user.email).count(), 1)
+		user.refresh_from_db()
+		self.assertEqual(user.first_name, "Existing")
+		self.assertTrue(user.email_verified)
+
+	@patch("spaceshare.api_views.id_token.verify_oauth2_token")
+	def test_google_login_rejects_invalid_token(self, verify_token):
+		verify_token.side_effect = ValueError
+
+		response = self.client.post(
+			"/api/auth/google/",
+			{"id_token": "invalid-google-token"},
+			content_type="application/json",
+		)
+
+		self.assertEqual(response.status_code, 400)
+		self.assertIn("invalid or expired", response.json()["detail"])
+
 	def test_registration_logs_user_in(self):
 		response = self.client.post(
 			reverse("register"),

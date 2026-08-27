@@ -1,16 +1,17 @@
 import { GoogleLogin } from '@react-oauth/google';
-import axios from 'axios';
-import { API_BASE } from '../lib/apiClient.js';
+import { request } from '../lib/apiClient.js';
+import { setTokens } from '../lib/tokens.js';
 
 function GoogleLoginButton({ onSuccess }) {
   const handleSuccess = async (credentialResponse) => {
     try {
-      const res = await axios.post(
-        `${API_BASE}/api/auth/google/`,
-        { id_token: credentialResponse.credential }
-      );
-      localStorage.setItem('authToken', res.data.key);
-      onSuccess(res.data);
+      const data = await request('/api/auth/google/', {
+        method: 'POST',
+        body: { idToken: credentialResponse.credential },
+        auth: false,
+      });
+      setTokens({ access: data.access, refresh: data.refresh });
+      onSuccess(data.user);
     } catch (err) {
       console.error('Google login failed:', err);
     }

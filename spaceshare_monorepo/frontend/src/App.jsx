@@ -7,6 +7,7 @@ import CreateListing from './pages/CreateListing.jsx'
 import Requests from './pages/Requests.jsx'
 import Bookings from './pages/Bookings.jsx'
 import Profile from './pages/Profile.jsx'
+import CompleteProfile from './pages/CompleteProfile.jsx'
 import { useCurrentUser } from './lib/useCurrentUser.js'
 
 export default function App() {
@@ -37,6 +38,7 @@ export default function App() {
               <Route path="/requests" element={<Requests user={user} refresh={refresh} />} />
               <Route path="/bookings" element={<Bookings user={user} refresh={refresh} />} />
               <Route path="/profile" element={<Profile user={user} refresh={refresh} />} />
+              <Route path="/complete-profile" element={<CompleteProfile user={user} refresh={refresh} />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </>
           ) : (
