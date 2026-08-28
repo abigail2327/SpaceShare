@@ -32,7 +32,7 @@ class MeSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             "id", "email", "first_name", "last_name", "bio", "linkedin_url",
-            "area", "field_tag", "email_verified", "average_rating", "rating_count",
+            "area", "field_tag", "phone", "email_verified", "average_rating", "rating_count",
         ]
         read_only_fields = ["id", "email", "email_verified", "average_rating", "rating_count"]
 

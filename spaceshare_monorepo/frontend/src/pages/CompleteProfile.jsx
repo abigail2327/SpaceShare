@@ -8,6 +8,7 @@ export default function CompleteProfile({ user, refresh }) {
   const navigate = useNavigate()
   const [area, setArea] = useState(user.area || '')
   const [fieldTag, setFieldTag] = useState(user.fieldTag || '')
+  const [phone, setPhone] = useState(user.phone || '')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
@@ -16,7 +17,7 @@ export default function CompleteProfile({ user, refresh }) {
     setSaving(true)
     setError('')
     try {
-      await updateMe(mapUserToApi({ area, fieldTag }))
+      await updateMe(mapUserToApi({ area, fieldTag, phone }))
       refresh()
       navigate('/')
     } catch (err) {
@@ -45,6 +46,17 @@ export default function CompleteProfile({ user, refresh }) {
                 <option key={key} value={key}>{label}</option>
               ))}
             </select>
+          </label>
+          <label className="flex flex-col gap-1.5 text-sm">
+            <span className="font-medium text-ink/75">Contact phone (optional)</span>
+            <input
+              type="tel"
+              value={phone}
+              onChange={(event) => setPhone(event.target.value)}
+              className="input"
+              placeholder="+971501234567"
+            />
+            <span className="text-xs text-ink/45">Use an international format, e.g. +971501234567.</span>
           </label>
           {error && <p className="text-sm text-clay">{error}</p>}
           <button type="submit" disabled={saving} className="rounded-full bg-gold px-5 py-3 text-sm font-semibold text-ink disabled:opacity-60">

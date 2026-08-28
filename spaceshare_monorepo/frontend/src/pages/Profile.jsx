@@ -11,7 +11,7 @@ import { useAsync } from '../lib/hooks.js'
 
 export default function Profile({ user, refresh }) {
   const [editing, setEditing] = useState(false)
-  const [form, setForm] = useState({ name: user.name, bio: user.bio, linkedin: user.linkedin, area: user.area })
+  const [form, setForm] = useState({ name: user.name, bio: user.bio, linkedin: user.linkedin, area: user.area, phone: user.phone })
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const { data: myListings, loading } = useAsync(() => getListingsByHost(user.id), [user.id])
@@ -65,6 +65,15 @@ export default function Profile({ user, refresh }) {
               <Field label="Area">
                 <input value={form.area} onChange={(e) => setForm((f) => ({ ...f, area: e.target.value }))} className="input" />
               </Field>
+              <Field label="Contact phone">
+                <input
+                  type="tel"
+                  value={form.phone}
+                  onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+                  className="input"
+                  placeholder="+971501234567"
+                />
+              </Field>
               <Field label="Bio">
                 <textarea value={form.bio} onChange={(e) => setForm((f) => ({ ...f, bio: e.target.value }))} rows={3} className="input" />
               </Field>
@@ -85,6 +94,7 @@ export default function Profile({ user, refresh }) {
             <div className="mt-5 flex flex-col gap-2 text-sm">
               <p className="text-ink/70">{user.bio || 'No bio yet.'}</p>
               <p className="text-ink/50">{user.area}</p>
+              {user.phone && <p className="text-ink/50">Contact: {user.phone}</p>}
               {user.linkedin && <p className="text-ink/50">LinkedIn: {user.linkedin}</p>}
             </div>
           )}
