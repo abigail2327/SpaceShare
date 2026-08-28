@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { FIELD_LABELS } from '../lib/store.js'
-import { useLiveLocation } from '../lib/useLiveLocation.js'
-import LocationMap from '../components/LocationMap.jsx'
 import { IconWifi, IconShield, IconClock, IconNavigation, IconArrowRight } from '../components/Icons.jsx'
 import GoogleLoginButton from '../components/GoogleLoginButton.jsx'
 
@@ -12,7 +10,6 @@ const HERO_IMAGE =
 export default function Welcome({ refresh }) {
   const location = useLocation()
   const navigate = useNavigate()
-  const { coords, label, status, error: locError, locate } = useLiveLocation()
 
   useEffect(() => {
     if (location.hash !== '#sign-up') return
@@ -34,11 +31,6 @@ export default function Welcome({ refresh }) {
               <span className="inline-flex items-center gap-1.5 rounded-full glass-dark px-3 py-1.5 text-xs font-medium text-white">
                 <IconShield className="h-3.5 w-3.5" /> Verified hosts only
               </span>
-              {coords && (
-                <span className="hidden items-center gap-1.5 rounded-full glass-dark px-3 py-1.5 text-xs font-medium text-white sm:inline-flex">
-                  {label || 'Locating…'}
-                </span>
-              )}
             </div>
 
             <div className="max-w-xl">
@@ -62,36 +54,6 @@ export default function Welcome({ refresh }) {
             </div>
           </div>
         </section>
-
-        {/* -------------------------------------------------- live location */}
-        <section className="mt-4 flex flex-col items-start gap-3 rounded-2xl border border-line bg-white p-4 shadow-soft sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-3">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-goldlight text-[#7A5C17]">
-              <IconNavigation className="h-4 w-4" />
-            </span>
-            <div>
-              <p className="text-sm font-medium text-ink">
-                {status === 'ready' ? `You're near ${label || 'your current location'}` : 'See sessions closest to you'}
-              </p>
-              <p className="text-xs text-ink/50">
-                {status === 'error' ? locError : 'Uses your device location — nothing is stored until you say so.'}
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={locate}
-            disabled={status === 'locating'}
-            className="shrink-0 rounded-full border border-ink/15 bg-white px-4 py-2 text-sm font-medium text-ink hover:bg-sand disabled:opacity-60"
-          >
-            {status === 'locating' ? 'Locating…' : status === 'ready' ? 'Update location' : 'Use my location'}
-          </button>
-        </section>
-
-        {coords && (
-          <section className="mt-4">
-            <LocationMap lat={coords.lat} lng={coords.lng} label={label} className="h-52 w-full" />
-          </section>
-        )}
 
         {/* ------------------------------------------------------ auth card */}
         <div id="sign-up" className="scroll-mt-24 mx-auto mt-10 max-w-md rounded-2xl border border-line bg-white p-8 text-center shadow-soft">
