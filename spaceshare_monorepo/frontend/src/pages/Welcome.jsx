@@ -35,12 +35,12 @@ export default function Welcome({ refresh }) {
 
             <div className="max-w-xl">
               <h1 className="font-display text-4xl font-medium leading-[1.08] text-white sm:text-5xl">
-                Work from someone's <span className="italic text-goldlight">living room</span> instead of
-                your desk.
+                Find your people. 
+                <br></br>
+                <span className="italic text-goldlight">Keep your pace. </span> 
               </h1>
               <p className="mt-4 max-w-md text-[15px] leading-relaxed text-white/80">
-                Skip the co-working membership and the coffee-shop markup. Host a session in your own
-                space, or join one happening near you today.
+                Find a session near you and trade solo silence for coffee talks, shared breaks, and real company.
               </p>
             </div>
 
