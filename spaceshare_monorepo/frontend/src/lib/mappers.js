@@ -12,6 +12,10 @@ function trimSeconds(t) {
   return typeof t === 'string' ? t.slice(0, 5) : t
 }
 
+function roundCoordinate(value) {
+  return value === null || value === undefined || value === '' ? value : Number(value).toFixed(6)
+}
+
 export function mapHost(u) {
   if (!u) return null
   return {
@@ -87,8 +91,8 @@ export function mapListingToApi(form) {
     title: form.title,
     generalArea: form.area,
     exactAddress: form.address,
-    latitude: form.lat,
-    longitude: form.lng,
+    latitude: roundCoordinate(form.lat),
+    longitude: roundCoordinate(form.lng),
     date: form.date,
     startTime: form.startTime,
     endTime: form.endTime,
