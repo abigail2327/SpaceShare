@@ -82,7 +82,7 @@ export default function Navbar({ user, onLogout }) {
             </>
           ) : (
             <NavLink
-              to="/welcome"
+              to="/welcome#sign-up"
               className="inline-flex items-center gap-1 rounded-full bg-gold px-4 py-2 text-sm font-semibold text-ink shadow-soft hover:bg-gold/90"
             >
               Get started

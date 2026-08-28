@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { FIELD_LABELS } from '../lib/store.js'
 import { useLiveLocation } from '../lib/useLiveLocation.js'
 import LocationMap from '../components/LocationMap.jsx'
@@ -10,8 +10,16 @@ const HERO_IMAGE =
   'https://images.unsplash.com/photo-1604328727766-a151d1045ab4?auto=format&fit=crop&w=1800&q=80'
 
 export default function Welcome({ refresh }) {
+  const location = useLocation()
   const navigate = useNavigate()
   const { coords, label, status, error: locError, locate } = useLiveLocation()
+
+  useEffect(() => {
+    if (location.hash !== '#sign-up') return
+    requestAnimationFrame(() => {
+      document.getElementById('sign-up')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
+  }, [location.hash])
 
   return (
     <div className="min-h-[calc(100vh-64px)] bg-paper px-4 py-8 sm:px-6 sm:py-10">
@@ -86,7 +94,7 @@ export default function Welcome({ refresh }) {
         )}
 
         {/* ------------------------------------------------------ auth card */}
-        <div className="mx-auto mt-10 max-w-md rounded-2xl border border-line bg-white p-8 text-center shadow-soft">
+        <div id="sign-up" className="scroll-mt-24 mx-auto mt-10 max-w-md rounded-2xl border border-line bg-white p-8 text-center shadow-soft">
           <h2 className="font-display text-2xl font-medium text-ink">Join SpaceShare</h2>
           <p className="mt-2 text-sm leading-relaxed text-ink/55">
             Sign in with Google to find a workspace or host your own session.
