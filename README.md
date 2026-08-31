@@ -19,7 +19,7 @@ Built and publicly launched through the DoraHacks 2.0 product residency by DoraD
 
 ## Screenshots
 
-![SpaceShare landing page](spaceshare_monorepo/docs/landing.png)
+![SpaceShare landing page](spaceshare_monorepo/docs/landingpage.png)
 
 ![Host a session](spaceshare_monorepo/docs/hostsession.png)
 
