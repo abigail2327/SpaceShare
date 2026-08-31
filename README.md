@@ -6,7 +6,7 @@ SpaceShare is a peer-to-peer marketplace for co-working sessions in real homes. 
 
 Built and publicly launched through the DoraHacks 2.0 product residency by DoraDAO.
 
-[Live App](https://spaceshare-vert.vercel.app/welcome) &nbsp;·&nbsp; [Product Hunt](https://www.producthunt.com/products/spaceshare?launch=spaceshare) &nbsp;·&nbsp; [Demo Video](https://www.linkedin.com/feed/update/urn:li:ugcPost:7499204012651544576/)
+[Live App](https://spaceshare-vert.vercel.app/welcome) &nbsp;·&nbsp; [Product Hunt](https://www.producthunt.com/products/spaceshare?launch=spaceshare) &nbsp;·&nbsp; [Demo Video](https://www.youtube.com/watch?v=GXc0jUco4uA&feature=youtu.be)
 
 ![React](https://img.shields.io/badge/React-20232A?logo=react&logoColor=61DAFB)
 ![Vite](https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white)
@@ -92,7 +92,7 @@ Copy `.env.example` to `.env` in each directory and fill in your own values. Nev
 
 - Live app: https://spaceshare-vert.vercel.app/welcome
 - Product Hunt: https://www.producthunt.com/products/spaceshare?launch=spaceshare
-- Demo video: https://www.linkedin.com/feed/update/urn:li:ugcPost:7499204012651544576/
+- Demo video: (https://www.youtube.com/watch?v=GXc0jUco4uA&feature=youtu.be)
 
 ## Contributors
 
