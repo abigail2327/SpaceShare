@@ -1,127 +1,106 @@
 # SpaceShare
 
-SpaceShare is a peer-to-peer coworking platform. Hosts offer coworking sessions in their homes, and guests request seats.
+**Spaces to share. Places to work. People to meet.**
 
-## Local setup
+SpaceShare is a peer-to-peer marketplace for co-working sessions in real homes. Remote and hybrid workers can host a session in their own space or join one happening nearby, trading empty apartments and coworking memberships for company, flexibility, and a change of scene.
 
-Requirements: Python 3.12+
+Built and publicly launched through the DoraHacks 2.0 product residency by DoraDAO.
 
-This project is set up to work with `uv`, but it is not required. You can use a standard virtual environment and `pip` instead.
+[Live App](https://spaceshare-vert.vercel.app/welcome) &nbsp;·&nbsp; [Product Hunt](https://www.producthunt.com/products/spaceshare?launch=spaceshare) &nbsp;·&nbsp; [Demo Video](https://www.linkedin.com/feed/update/urn:li:ugcPost:7499204012651544576/)
 
-### Recommended setup with `uv`
+![React](https://img.shields.io/badge/React-20232A?logo=react&logoColor=61DAFB)
+![Vite](https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white)
+![Django](https://img.shields.io/badge/Django-092E20?logo=django&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?logo=postgresql&logoColor=white)
+![Vercel](https://img.shields.io/badge/Vercel-000000?logo=vercel&logoColor=white)
+![Render](https://img.shields.io/badge/Render-46E3B7?logo=render&logoColor=white)
 
-```bash
-uv sync
-uv run python manage.py migrate
-uv run python manage.py check
-uv run python manage.py runserver
+---
+
+## Screenshots
+
+![SpaceShare landing page](docs/landing.png)
+
+![Host a session](docs/host-session.png)
+
+---
+
+## The Problem
+
+Remote work gave people flexibility, but it also left many of them working alone in empty apartments, with Slack messages standing in for human company. Dedicated coworking spaces solve the isolation but add a membership cost and a commute. SpaceShare sits in between: skip the membership and the coffee-shop markup, and work from someone's living room instead of your desk.
+
+## Features
+
+- Full host and guest booking flow with session requests, approvals, and notifications
+- Trust and safety by design: verified hosts, gradual address reveal (exact location shared only after a request is accepted), and women-only space options
+- Location-aware discovery of sessions happening nearby
+- Session listings with cover photos, titles, and details
+- Reviews and ratings for both hosts and guests
+
+## Tech Stack
+
+| Layer | Technology |
+| --- | --- |
+| Frontend | React, Vite |
+| Backend | Django, Django REST Framework |
+| Database | PostgreSQL |
+| Hosting | Vercel (frontend), Render (backend) |
+
+## Architecture
+
+A single monorepo houses the React/Vite client and the Django REST backend. The frontend is deployed to Vercel and talks to the Django API on Render, backed by a PostgreSQL database in production.
+
+```
+SpaceShare/
+├── frontend/     React + Vite client
+├── backend/      Django REST API
+└── docs/         Screenshots and assets
 ```
 
-### Alternative setup with `venv` + `pip`
+> Adjust the tree above to match your actual folder names.
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18+
+- Python 3.11+
+- PostgreSQL
+
+### Backend
 
 ```bash
-python3.12 -m venv .venv
-source .venv/bin/activate
-pip install "django>=6.1" "pillow>=12.3.0" "python-dotenv>=1.2.3"
+cd backend
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
 python manage.py migrate
-python manage.py check
 python manage.py runserver
 ```
 
-The project reads `SECRET_KEY` from `.env`.
-
-Run the test suite with:
+### Frontend
 
 ```bash
-uv run python manage.py test
+cd frontend
+npm install
+npm run dev
 ```
 
-If you are using the `venv` setup instead, run:
+Copy `.env.example` to `.env` in each directory and fill in your own values. Never commit real credentials.
 
-```bash
-python manage.py test
-```
+## Links
 
-## Current routes
+- Live app: https://spaceshare-vert.vercel.app/welcome
+- Product Hunt: https://www.producthunt.com/products/spaceshare?launch=spaceshare
+- Demo video: https://www.linkedin.com/feed/update/urn:li:ugcPost:7499204012651544576/
 
-| Route | Purpose | Authentication |
-| --- | --- | --- |
-| `/` | Home page | Public |
-| `/register/` | Create an account | Public |
-| `/login/` | Log in with email and password | Public |
-| `/logout/` | Log out | Authenticated, POST |
-| `/listings/` | Browse available listings | Public |
-| `/listings/<id>/` | View one active listing | Public |
-| `/listings/new/` | Create a listing | Authenticated |
-| `/listings/mine/` | View the host's listings | Authenticated |
-| `/listings/<id>/cancel/` | Cancel a listing | Owner, POST |
-| `/listings/<id>/book/` | Request a seat | Authenticated |
-| `/bookings/mine/` | View all guest bookings | Authenticated |
-| `/bookings/requests/` | View pending host requests | Host |
-| `/bookings/<id>/approve/` | Approve a request | Listing owner, POST |
-| `/bookings/<id>/decline/` | Decline a request | Listing owner, POST |
-| `/bookings/<id>/cancel/` | Cancel a guest booking | Booking owner, POST |
+## Contributors
 
-Application routes live in `spaceshare/urls.py`. The project URLconf only mounts
-the app and the admin site.
+Built by the SpaceShare team during the DoraHacks 2.0 residency.
 
-## Authentication
+- Abigail Da Costa — [GitHub](https://github.com/abigail2327)
+- Zainab Shah -[GitHub](https://github.com/Tarctic)
 
-Django session authentication is used. The custom `User` model authenticates by email rather than username. Passwords are stored using Django's password hashing.Authentication forms and state-changing forms include CSRF protection.
+## Acknowledgments
 
-## Listing rules
-
-- Each listing currently represents one dated session.
-- Public discovery shows only active, future, non-full listings.
-- Guests can filter discovery by area and field.
-- Hosts can cancel listings, which preserves the listing and booking history.
-- Cancelling a listing cancels its pending and accepted bookings.
-- A listing's exact address is never shown on public pages.
-
-## Booking rules
-
-Booking statuses are:
-
-```text
-PENDING -> ACCEPTED
-PENDING -> DECLINED
-PENDING -> CANCELLED
-ACCEPTED -> CANCELLED
-```
-
-Completed bookings are retained as history. Guests cannot book their own listing, create duplicate pending/accepted requests, or book a past, cancelled, inactive, or full listing. Hosts can approve only requests for their own listings. Approval checks capacity inside a database transaction.
-
-Guests see all of their booking statuses. A future React interface can group
-them as:
-
-- Active: pending and accepted
-- Past: declined, cancelled, and completed
-
-The backend deliberately returns the complete history so the frontend can
-choose how to present it.
-
-## Address privacy
-
-The public listing detail page exposes `general_area` only. The exact address and optional location URL are exposed in guest booking history only when that guest's booking is accepted. React must preserve this server-side rule and must not infer access from client-side state.
-
-## React integration boundary
-
-The current application uses standard Django views, forms, templates, and session authentication. React is not required for the current workflow.
-
-For the MVP, React can be added progressively with CDN scripts and Babel:
-
-1. Keep Django responsible for authentication, CSRF, validation, permissions,
-	booking capacity, status transitions, and privacy.
-2. Mount React inside a dedicated element such as
-	`<div id="listing-filters-root"></div>`.
-3. Start with a small enhancement, such as listing filters or booking display.
-4. Use Django-rendered data or small `JsonResponse` endpoints when a component
-	needs data.
-5. Keep the Django-rendered page as a fallback while the React component is
-	developed.
-
-Do not remove Django template tags from Django-owned pages. Tags such as `{% csrf_token %}`, `{% url %}`, `{% if %}`, and `{% for %}` are part of the server-side contract. Do not duplicate booking authorization or capacity rules in React.
-
-## Deferred features
-
-Payments, recurring schedules, reviews, messaging, notifications, identity verification, map/geocoding, moderation, and a separate API framework are not implemented yet.
+Developed during DoraHacks 2.0, a two-week product residency by DoraDAO focused on taking products from idea to public launch, with mentorship from industry experts across product, engineering, growth, and marketing.
